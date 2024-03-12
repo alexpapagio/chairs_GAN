@@ -1,6 +1,8 @@
 # project image data
 raw_data/
 YOLO/runs/
+# YOLO model files
+YOLO/*.pt
 
 .DS_Store
 
