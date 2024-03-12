@@ -1,5 +1,6 @@
 # project image data
 raw_data/
+YOLO/runs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
