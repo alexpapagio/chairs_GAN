@@ -1,5 +1,10 @@
 # project image data
 raw_data/
+YOLO/runs/
+# YOLO model files
+YOLO/*.pt
+
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
