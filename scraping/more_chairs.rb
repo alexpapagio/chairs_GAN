@@ -107,14 +107,14 @@ class MoreChairsScraper
       end
 
       # Next page
-      if (next_button = page.first("a[data-testid='pagination-next']"))
+      if (next_button = page.first("a[data-testid='pagination-next']", minimum: 0))
         next_button.click
       else
         puts "No more pages"
         break
       end
 
-      File.write("raw_data/scraped-more/failed-#{Time.now.to_i}.txt", failed.join("\n"))
+      File.write("raw_data/scraped-more/failed-#{Time.now.to_i}.txt", failed.join("\n")) if !failed.empty?
     end
   end
 end
