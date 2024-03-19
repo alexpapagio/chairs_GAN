@@ -1,5 +1,7 @@
 """
-This script crops the images from the Seeing 3D Chairs dataset to remove the white background.
+This script crops the images from the Seeing 3D Chairs dataset to remove the surplus white
+background, and make the chairs fill more of the image. This can affect autoencoder
+performance.
 
 The output files are flattened to a single directory, with the filenames prefixed
 with their unique image directory names (because the filenames are not unique across
@@ -21,28 +23,6 @@ import glob
 from PIL import Image, ImageOps
 from multiprocessing import Pool, cpu_count
 
-raw_data_dir = "raw_data/"
-source_dir = raw_data_dir + "/source/seeing_3d_chairs_rendered_chairs/"
-
-
-def make_white_transparent(img):
-    # Get the image data
-    data = img.getdata()
-
-    # Create a new image data
-    new_data = []
-    for item in data:
-        # Change all white (also shades of whites)
-        # pixels to transparent
-        if item[0] in list(range(200, 256)):
-            new_data.append((255, 255, 255, 0))
-        else:
-            new_data.append(item)
-
-    # Update the image data
-    img.putdata(new_data)
-    return img
-
 
 def process_image(file_path, output_dir, padding=10):
     # get the image name, it's the second to last directory, above "renders"
@@ -53,24 +33,43 @@ def process_image(file_path, output_dir, padding=10):
     print("processing ", file_path, "output_path", output_path)
 
     # Open the image
-    img = Image.open(file_path).convert("RGBA")
-
-    # Make white pixels transparent
-    img = make_white_transparent(img)
+    img = Image.open(file_path).convert("RGB")
 
     # Get the bounding box
-    bbox = img.getbbox()
+    # The bounding box is returned as a 4-tuple defining the
+    # left, upper, right, and lower pixel coordinate
 
-    # Check if the bounding box is None
-    if bbox is None:
-        print(f"No non-transparent pixels found in image {file_path}. Skipping.")
-        # Append the filename to a failure file
-        with open("failure.txt", "a", encoding="utf-8") as f:
-            f.write(file_path + "\n")
-        return
+    # This is the original method, but it doesn't work with a white background
+    # bbox = img.getbbox()
+
+    # work from the outside edges in to find the first content pixels
+    # the background is white, assume 255,255,255
+
+    # get the image size
+    width, height = img.size
+    # get the pixels
+    pixels = img.load()
+    # get the bounding box
+    left = width
+    upper = height
+    right = 0
+    lower = 0
+    for x in range(width):
+        for y in range(height):
+            if pixels[x, y] != (255, 255, 255):
+                left = min(left, x)
+                upper = min(upper, y)
+                right = max(right, x)
+                lower = max(lower, y)
 
     # Add padding to the bounding box
-    bbox = (bbox[0] - padding, bbox[1] - padding, bbox[2] + padding, bbox[3] + padding)
+    # but make sure the values don't go below 0 or above the image size
+    bbox = (
+        max(0, left - padding),
+        max(0, upper - padding),
+        min(width, right + padding),
+        min(height, lower + padding),
+    )
 
     # Crop the image
     cropped_img = img.crop(bbox)
@@ -79,16 +78,16 @@ def process_image(file_path, output_dir, padding=10):
     # Scale down to 100x100, do not scale up.
     cropped_img.thumbnail((100, 100), Image.ANTIALIAS)
 
-    # Pad to 100x100 with transparency
+    # Pad to 100x100 with new white pixels
     # Calculate padding
     width, height = cropped_img.size
     padding_width = (100 - width) // 2
     padding_height = (100 - height) // 2
-    # Add transparent padding
+    # Add white padding
     padded_img = ImageOps.expand(
         cropped_img,
         (padding_width, padding_height, padding_width, padding_height),
-        fill=(255, 255, 255, 0),
+        fill=(255, 255, 255),
     )
 
     # Save the cropped image
@@ -96,23 +95,27 @@ def process_image(file_path, output_dir, padding=10):
 
 
 def process_images(file_paths, output_dir):
+    """
+    Process the chunk of file-paths in parallel."""
     with Pool() as p:
         p.starmap(process_image, [(file_path, output_dir) for file_path in file_paths])
 
 
 if __name__ == "__main__":
     # Define the source and output directories
-    source_dir = raw_data_dir + "source/seeing_3d_chairs_rendered_chairs/"
-    output_dir = raw_data_dir + "processed_data/"
+    RAW_DATA_DIR = "raw_data/"
+    SOURCE_DIR = RAW_DATA_DIR + "source/seeing_3d_chairs_rendered_chairs/"
+    OUTPUT_DIR = RAW_DATA_DIR + "processed_data/seeing_3d_chairs_cropped_100x100/"
 
     # Ensure the output directory exists
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Get a list of all PNG files in the source directory
-    file_paths = glob.glob(source_dir + "/**/*.png", recursive=True)
+    all_png_paths = glob.glob(SOURCE_DIR + "/**/*.png", recursive=True)
     # Split the list of file paths into chunks
     chunks = [
-        file_paths[i : i + cpu_count()] for i in range(0, len(file_paths), cpu_count())
+        all_png_paths[i : i + cpu_count()]
+        for i in range(0, len(all_png_paths), cpu_count())
     ]
     for chunk in chunks:
-        process_images(chunk, output_dir)
+        process_images(chunk, OUTPUT_DIR)
