@@ -20,8 +20,9 @@ several hours, but has only been tested on Mac OS.
 
 import os
 import glob
-from PIL import Image, ImageOps
 from multiprocessing import Pool, cpu_count
+from PIL import Image, ImageOps
+import numpy as np
 
 
 def process_image(file_path, output_dir, padding=10):
@@ -45,22 +46,20 @@ def process_image(file_path, output_dir, padding=10):
     # work from the outside edges in to find the first content pixels
     # the background is white, assume 255,255,255
 
-    # get the image size
-    width, height = img.size
-    # get the pixels
-    pixels = img.load()
-    # get the bounding box
-    left = width
-    upper = height
-    right = 0
-    lower = 0
-    for x in range(width):
-        for y in range(height):
-            if pixels[x, y] != (255, 255, 255):
-                left = min(left, x)
-                upper = min(upper, y)
-                right = max(right, x)
-                lower = max(lower, y)
+    # Convert the image to a numpy array
+    img_array = np.array(img)
+
+    # Get the image size
+    height, width, _ = img_array.shape
+
+    # Find the non-white pixels
+    non_white_pixels = np.where(np.any(img_array != [255, 255, 255], axis=-1))
+
+    # Get the bounding box coordinates
+    left = np.min(non_white_pixels[1])
+    upper = np.min(non_white_pixels[0])
+    right = np.max(non_white_pixels[1])
+    lower = np.max(non_white_pixels[0])
 
     # Add padding to the bounding box
     # but make sure the values don't go below 0 or above the image size
@@ -75,14 +74,14 @@ def process_image(file_path, output_dir, padding=10):
     cropped_img = img.crop(bbox)
 
     # Resize the image, preserving aspect ratio.
-    # Scale down to 100x100, do not scale up.
-    cropped_img.thumbnail((100, 100), Image.ANTIALIAS)
+    # Scale down to 256x256, do not scale up.
+    cropped_img.thumbnail((256, 256), Image.ANTIALIAS)
 
-    # Pad to 100x100 with new white pixels
+    # Pad to 256x256 with new white pixels
     # Calculate padding
     width, height = cropped_img.size
-    padding_width = (100 - width) // 2
-    padding_height = (100 - height) // 2
+    padding_width = (256 - width) // 2
+    padding_height = (256 - height) // 2
     # Add white padding
     padded_img = ImageOps.expand(
         cropped_img,
@@ -105,7 +104,7 @@ if __name__ == "__main__":
     # Define the source and output directories
     RAW_DATA_DIR = "raw_data/"
     SOURCE_DIR = RAW_DATA_DIR + "source/seeing_3d_chairs_rendered_chairs/"
-    OUTPUT_DIR = RAW_DATA_DIR + "processed_data/seeing_3d_chairs_cropped_100x100/"
+    OUTPUT_DIR = RAW_DATA_DIR + "processed_data/seeing_3d_chairs_cropped_256x256/"
 
     # Ensure the output directory exists
     os.makedirs(OUTPUT_DIR, exist_ok=True)
