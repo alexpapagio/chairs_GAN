@@ -8,7 +8,6 @@ from load_process_convert import load_image, image_to_base64
 
 DEFAULT_IMAGE_DIRECTORY = "tmp"
 NUM_IMAGES_TO_DISPLAY = 10
-UPLOAD_DIRECTORY = "tmp"
 
 
 def render_image_dataset_viewer():
@@ -57,6 +56,23 @@ def render_image_dataset_viewer():
     )
 
 
+def playback_uploaded_image(img_ref: str):
+    """img_ref is e.g. 'one' or 'A'"""
+    uploaded_file = st.file_uploader(
+        f"Choose file {img_ref}", type=["png", "jpg", "jpeg", "gif", "webp"]
+    )
+    if uploaded_file is not None:
+        # Streamlit base64 encodes the images for us, we can give it the in-memory
+        # image data.
+        # Let's check it's really an image first, not a renamed text file etc.
+        # Streamlit only checks the file extension.
+        if not is_image(uploaded_file):
+            st.error("Uploaded file is unsupported.")
+        else:
+            st.markdown(f"### Uploaded image {img_ref}")
+            st.image(uploaded_file)
+
+
 def main():
     """
     Main function of the Streamlit app.
@@ -90,88 +106,15 @@ def main():
 
     st.header("_PNG_ Chair Image Uploader")
 
-    if not os.path.exists(UPLOAD_DIRECTORY):
-        os.makedirs(UPLOAD_DIRECTORY)
-
     col1, col2 = st.columns(2)
 
     with col1:
         st.subheader("Chair one :fire: :seat:")
-        uploaded_file_one = st.file_uploader("Choose file one", type=["png"])
-        if uploaded_file_one is not None:
-            st.image(uploaded_file_one)
-            file_path_one = save_uploadedfile(UPLOAD_DIRECTORY, uploaded_file_one)
-
-            if file_path_one:
-                st.success(f"File saved at {file_path_one}")
-                # Load, process, and convert the image
-                processed_image = load_image(file_path_one)
-                base64_img = image_to_base64(processed_image)
-
-                # Display the image using base64 encoding
-                st.markdown(f"### Processed Image Display :fire: :seat:")
-                st.markdown(
-                    f'<img src="data:image/png;base64,{base64_img}" alt="Processed image" style="display:block; margin-left:auto; margin-right:auto;"/>',
-                    unsafe_allow_html=True,
-                )
-
-            #  # Convert the PIL Image to a base64 string
-            # base64_str_one = get_image_base64(uploaded_file_one)
-            # # Generate the HTML img tag
-            # img_html_one = generate_img_html(base64_str_one)
-            # # Display the HTML image in Streamlit
-            # st.markdown(img_html_one, unsafe_allow_html=True)
-            # # Optionally, you can display the raw HTML code to the user
-            # st.text_area("Copy the HTML code below:", img_html_one, height=100)
-
-            # # Gradient divider
-            # st.markdown(
-            # """
-            # <hr style="height: 2px; border: none; background: linear-gradient(to right, red, gray, white);"/>
-            # """,
-            # unsafe_allow_html=True
-            # )
-
-            # st.header('HTML :fire: :chair: Image Display')
+        playback_uploaded_image("Choose file one")
 
     with col2:
         st.subheader("Chair two :fire: :seat: :seat:")
-        uploaded_file_two = st.file_uploader("Choose file two", type=["png"])
-        if uploaded_file_two is not None:
-            st.image(uploaded_file_two)
-            file_path_two = save_uploadedfile(UPLOAD_DIRECTORY, uploaded_file_two)
-
-            if file_path_two:
-                st.success(f"File saved at {file_path_two}")
-                # Load, process, and convert the image
-                processed_image = load_image(file_path_two)
-                base64_img = image_to_base64(processed_image)
-
-                # Display the image using base64 encoding
-                st.markdown(f"### Processed Image Display :fire: :seat: :seat:")
-                st.markdown(
-                    f'<img src="data:image/png;base64,{base64_img}" alt="Processed image" style="display:block; margin-left:auto; margin-right:auto;"/>',
-                    unsafe_allow_html=True,
-                )
-
-            #  # Convert the PIL Image to a base64 string
-            # base64_str_two = get_image_base64(uploaded_file_two)
-            # # Generate the HTML img tag
-            # img_html_two = generate_img_html(base64_str_two)
-            # # Display the HTML image in Streamlit
-            # st.markdown(img_html_two, unsafe_allow_html=True)
-            # # Optionally, you can display the raw HTML code to the user
-            # st.text_area("Copy the HTML code below:", img_html_two, height=100)
-
-            # # Gradient divider
-            # st.markdown(
-            # """
-            # <hr style="height: 2px; border: none; background: linear-gradient(to right, red, gray, white);"/>
-            # """,
-            # unsafe_allow_html=True
-            # )
-
-            # st.header('HTML :fire: :chair: :chair: Image Display')
+        playback_uploaded_image("Choose file two")
 
 
 if __name__ == "__main__":

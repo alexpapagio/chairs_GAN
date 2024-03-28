@@ -1,13 +1,15 @@
-import streamlit as st
+"""
+This module contains functions to load and process images sent to the server by the
+user's browser.
+"""
+
+import imghdr
 from PIL import Image
 import numpy as np
-import base64
-from io import BytesIO
 
 
-# Function to load and process the image
-@st.cache
-def load_image(image_data, new_img_width=256, remove_top_pixels=0):
+def resize_image(image_data, new_img_width=256, remove_top_pixels=0):
+    """Load and process the image"""
     # Load the image
     im = Image.open(image_data)
     if remove_top_pixels > 0:
@@ -20,9 +22,10 @@ def load_image(image_data, new_img_width=256, remove_top_pixels=0):
     im = im.resize((new_img_width, new_img_height), Image.LANCZOS)
     return im
 
-# Function to convert image to base64 for HTML embedding
-def image_to_base64(im, format="PNG"):
-    buffered = BytesIO()
-    im.save(buffered, format=format)
-    img_str = base64.b64encode(buffered.getvalue()).decode()
-    return img_str
+
+def is_image(file):
+    """Check if the given file is a PNG, JPEG, GIF, or WebP image."""
+    try:
+        return imghdr.what(file) in {"png", "jpeg", "gif", "webp"}
+    except (TypeError, OSError):
+        return False
