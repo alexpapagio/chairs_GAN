@@ -6,9 +6,9 @@ from save_upload import save_uploadedfile
 from load_process_convert import load_image, image_to_base64
 
 
-DEFAULT_IMAGE_DIRECTORY = "/Users/luketomlinson/Desktop/RC_Chairs"
+DEFAULT_IMAGE_DIRECTORY = "tmp"
 NUM_IMAGES_TO_DISPLAY = 10
-UPLOAD_DIRECTORY = "/Users/luketomlinson/Desktop/Streamlit_folder"
+UPLOAD_DIRECTORY = "tmp"
 
 
 def render_image_dataset_viewer():
@@ -37,7 +37,7 @@ def render_image_dataset_viewer():
 
     if directory_path:
         images = load_png_images_from_directory(
-            directory_path=DEFAULT_IMAGE_DIRECTORY, num_images=NUM_IMAGES_TO_DISPLAY
+            directory_path=directory_path, num_images=num_images
         )
         if images:
             st.image(
