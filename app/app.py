@@ -86,13 +86,14 @@ def main():
         menu_items={"About": "# This is a header. This is a hot seats app!"},
     )
 
-    st.image(
-        "https://storage.googleapis.com/chairs-gan-images/Hotseats-logo.webp",
-        caption="Hot Seats Logo",
-        use_column_width=True,
-    )
-
-    st.title("_Hot_ Seats :fire: :seat:")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.title("_Hot_ Seats :fire: :seat:")
+    with col2:
+        st.image(
+            "https://storage.googleapis.com/chairs-gan-images/Hotseats-logo.webp",
+            use_column_width="auto",
+        )
 
     # Gradient divider
     st.markdown(
