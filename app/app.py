@@ -3,8 +3,6 @@ import os
 from PIL import Image
 from image_loader import load_png_images_from_directory
 from save_upload import save_uploadedfile
-# from image_base64 import get_image_base64
-# from image_html import generate_img_html
 from load_process_convert import load_image, image_to_base64
 from utils import DEFAULT_IMAGE_DIRECTORY, NUM_IMAGES_TO_DISPLAY, UPLOAD_DIRECTORY, LOGO_PATH
 
