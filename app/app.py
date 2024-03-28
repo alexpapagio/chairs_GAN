@@ -1,9 +1,13 @@
-import streamlit as st
+"""
+Streamlit app for Hot Seats project. The user can upload 2 images, and we will generate
+and display a new image combining the two images.
+"""
+
 import os
-from PIL import Image
-from image_loader import load_png_images_from_directory
-from save_upload import save_uploadedfile
-from load_process_convert import load_image, image_to_base64
+
+import streamlit as st
+
+import image_dataset, uploaded_images
 
 
 DEFAULT_IMAGE_DIRECTORY = "tmp"
@@ -35,7 +39,7 @@ def render_image_dataset_viewer():
         num_images = NUM_IMAGES_TO_DISPLAY
 
     if directory_path:
-        images = load_png_images_from_directory(
+        images = image_dataset.load_png_images_from_directory(
             directory_path=directory_path, num_images=num_images
         )
         if images:
@@ -66,11 +70,11 @@ def playback_uploaded_image(img_ref: str):
         # image data.
         # Let's check it's really an image first, not a renamed text file etc.
         # Streamlit only checks the file extension.
-        if not is_image(uploaded_file):
-            st.error("Uploaded file is unsupported.")
-        else:
+        if uploaded_images.is_image(uploaded_file):
             st.markdown(f"### Uploaded image {img_ref}")
             st.image(uploaded_file)
+        else:
+            st.error("Uploaded file is unsupported.")
 
 
 def main():
