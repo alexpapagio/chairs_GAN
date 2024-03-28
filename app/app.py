@@ -9,12 +9,15 @@ import streamlit as st
 
 import image_dataset, uploaded_images
 
+# set to a local path as needed
+DATASET_VIEWER_DEFAULT_IMAGE_DIRECTORY = None
+DATASET_VIEWER_NUM_IMAGES = 10
 
-DEFAULT_IMAGE_DIRECTORY = "tmp"
-NUM_IMAGES_TO_DISPLAY = 10
 
-
-def render_image_dataset_viewer():
+def render_image_dataset_viewer(
+    num_images_to_display: int = DATASET_VIEWER_NUM_IMAGES,
+    image_directory: str = DATASET_VIEWER_DEFAULT_IMAGE_DIRECTORY,
+):
     """
     Add the image dataset viewer to the Streamlit app.
     """
@@ -27,20 +30,16 @@ def render_image_dataset_viewer():
 
     if input_choice == "Enter custom inputs":
         # User inputs for directory path and number of images
-        directory_path = st.text_input(
+        image_directory = st.text_input(
             "Enter the directory path containing PNG images", ""
         )
-        num_images = st.number_input(
+        num_images_to_display = st.number_input(
             "Number of images to display", min_value=1, value=5, max_value=10, step=1
         )
-    else:
-        # Use constants
-        directory_path = DEFAULT_IMAGE_DIRECTORY
-        num_images = NUM_IMAGES_TO_DISPLAY
 
-    if directory_path:
+    if image_directory:
         images = image_dataset.load_png_images_from_directory(
-            directory_path=directory_path, num_images=num_images
+            directory_path=image_directory, num_images=num_images_to_display
         )
         if images:
             st.image(
@@ -50,6 +49,8 @@ def render_image_dataset_viewer():
             )
         else:
             st.write("No PNG images found in the specified directory.")
+    else:
+        st.error("No image directory provided, and no default set.")
 
     # Gradient divider
     st.markdown(
