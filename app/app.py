@@ -78,6 +78,12 @@ def main():
     Main function of the Streamlit app.
     """
 
+    # Check Streamlit version
+    if st.__version__ != "1.29.0":
+        st.warning(
+            "File upload may not work with this version of Streamlit. Please install version 1.29.0."
+        )
+
     st.set_page_config(
         page_title="Hot Seats",
         page_icon=":chair:",
