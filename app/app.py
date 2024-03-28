@@ -9,28 +9,26 @@ from load_process_convert import load_image, image_to_base64
 DEFAULT_IMAGE_DIRECTORY = "/Users/luketomlinson/Desktop/RC_Chairs"
 NUM_IMAGES_TO_DISPLAY = 10
 UPLOAD_DIRECTORY = "/Users/luketomlinson/Desktop/Streamlit_folder"
-LOGO_PATH = "/Users/luketomlinson/Downloads/Hotseats_logo.webp"
-
 
 # If you're using constants.py
 # from constants import DEFAULT_IMAGE_DIRECTORY, NUM_IMAGES_TO_DISPLAY
 
+
 def main():
 
     st.set_page_config(
-    page_title="Hot Seats App",
-    page_icon=":fire: :seat:",
-    layout="centered",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'About': "# This is a header. This is a hot seats app!"
-    }
-)
+        page_title="Hot Seats",
+        page_icon=":fire: :seat: :chair:",
+        layout="centered",
+        initial_sidebar_state="expanded",
+        menu_items={"About": "# This is a header. This is a hot seats app!"},
+    )
 
-    image = Image.open(LOGO_PATH)
-    st.image(image=image, caption='Hotseats Logo', use_column_width=True)
-
-
+    st.image(
+        "https://storage.googleapis.com/chairs-gan-images/Hotseats-logo.webp",
+        caption="Hot Seats Logo",
+        use_column_width=True,
+    )
 
     st.title('_Hot_ Seats :fire: :seat:')
 
