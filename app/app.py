@@ -4,8 +4,12 @@ from PIL import Image
 from image_loader import load_png_images_from_directory
 from save_upload import save_uploadedfile
 from load_process_convert import load_image, image_to_base64
-from utils import DEFAULT_IMAGE_DIRECTORY, NUM_IMAGES_TO_DISPLAY, UPLOAD_DIRECTORY, LOGO_PATH
 
+
+DEFAULT_IMAGE_DIRECTORY = "/Users/luketomlinson/Desktop/RC_Chairs"
+NUM_IMAGES_TO_DISPLAY = 10
+UPLOAD_DIRECTORY = "/Users/luketomlinson/Desktop/Streamlit_folder"
+LOGO_PATH = "/Users/luketomlinson/Downloads/Hotseats_logo.webp"
 
 
 # If you're using constants.py
