@@ -64,7 +64,7 @@ def main():
 
     st.set_page_config(
         page_title="Hot Seats",
-        page_icon=":fire: :seat: :chair:",
+        page_icon=":chair:",
         layout="centered",
         initial_sidebar_state="expanded",
         menu_items={"About": "# This is a header. This is a hot seats app!"},
