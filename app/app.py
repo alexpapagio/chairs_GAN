@@ -10,11 +10,57 @@ DEFAULT_IMAGE_DIRECTORY = "/Users/luketomlinson/Desktop/RC_Chairs"
 NUM_IMAGES_TO_DISPLAY = 10
 UPLOAD_DIRECTORY = "/Users/luketomlinson/Desktop/Streamlit_folder"
 
-# If you're using constants.py
-# from constants import DEFAULT_IMAGE_DIRECTORY, NUM_IMAGES_TO_DISPLAY
+
+def render_image_dataset_viewer():
+    """
+    Add the image dataset viewer to the Streamlit app.
+    """
+    st.header("_PNG_ Image Dataset Viewer")
+
+    # Let the user choose between default values or providing their own
+    input_choice = st.radio(
+        "Choose your input method:", ("Use default settings", "Enter custom inputs")
+    )
+
+    if input_choice == "Enter custom inputs":
+        # User inputs for directory path and number of images
+        directory_path = st.text_input(
+            "Enter the directory path containing PNG images", ""
+        )
+        num_images = st.number_input(
+            "Number of images to display", min_value=1, value=5, max_value=10, step=1
+        )
+    else:
+        # Use constants
+        directory_path = DEFAULT_IMAGE_DIRECTORY
+        num_images = NUM_IMAGES_TO_DISPLAY
+
+    if directory_path:
+        images = load_png_images_from_directory(
+            directory_path=DEFAULT_IMAGE_DIRECTORY, num_images=NUM_IMAGES_TO_DISPLAY
+        )
+        if images:
+            st.image(
+                images,
+                caption=[f"Image {i+1}" for i in range(len(images))],
+                use_column_width=True,
+            )
+        else:
+            st.write("No PNG images found in the specified directory.")
+
+    # Gradient divider
+    st.markdown(
+        """
+    <hr style="height: 2px; border: none; background: linear-gradient(to right, red, gray, white);"/>
+    """,
+        unsafe_allow_html=True,
+    )
 
 
 def main():
+    """
+    Main function of the Streamlit app.
+    """
 
     st.set_page_config(
         page_title="Hot Seats",
@@ -40,50 +86,7 @@ def main():
         unsafe_allow_html=True,
     )
 
-    st.header("_PNG_ Image Dataset Viewer")
-
-    # Let the user choose between default values or providing their own
-    input_choice = st.radio(
-        "Choose your input method:", ("Use default settings", "Enter custom inputs")
-    )
-
-    if input_choice == "Enter custom inputs":
-        # User inputs for directory path and number of images
-        directory_path = st.text_input(
-            "Enter the directory path containing PNG images", ""
-        )
-        num_images = st.number_input(
-            "Number of images to display", min_value=1, value=5, max_value=10, step=1
-        )
-    else:
-        # Use constants
-        directory_path = DEFAULT_IMAGE_DIRECTORY
-        num_images = NUM_IMAGES_TO_DISPLAY
-
-    # # Use constants or define directly
-    # directory_path = st.text_input("Enter the directory path containing PNG images", "/path/to/your/images")
-    # num_images = st.number_input("Number of images to display", min_value=1, value=10, step=1)
-
-    if directory_path:
-        images = load_png_images_from_directory(
-            directory_path=DEFAULT_IMAGE_DIRECTORY, num_images=NUM_IMAGES_TO_DISPLAY
-        )
-        if images:
-            st.image(
-                images,
-                caption=[f"Image {i+1}" for i in range(len(images))],
-                use_column_width=True,
-            )
-        else:
-            st.write("No PNG images found in the specified directory.")
-
-    # Gradient divider
-    st.markdown(
-        """
-    <hr style="height: 2px; border: none; background: linear-gradient(to right, red, gray, white);"/>
-    """,
-        unsafe_allow_html=True,
-    )
+    # render_image_dataset_viewer()
 
     st.header("_PNG_ Chair Image Uploader")
 
