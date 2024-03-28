@@ -30,52 +30,62 @@ def main():
         use_column_width=True,
     )
 
-    st.title('_Hot_ Seats :fire: :seat:')
+    st.title("_Hot_ Seats :fire: :seat:")
 
     # Gradient divider
     st.markdown(
-    """
+        """
     <hr style="height: 2px; border: none; background: linear-gradient(to right, red, gray, white);"/>
     """,
-    unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
-    st.header('_PNG_ Image Dataset Viewer')
+    st.header("_PNG_ Image Dataset Viewer")
 
     # Let the user choose between default values or providing their own
-    input_choice = st.radio("Choose your input method:", ("Use default settings", "Enter custom inputs"))
+    input_choice = st.radio(
+        "Choose your input method:", ("Use default settings", "Enter custom inputs")
+    )
 
     if input_choice == "Enter custom inputs":
         # User inputs for directory path and number of images
-        directory_path = st.text_input("Enter the directory path containing PNG images", "")
-        num_images = st.number_input("Number of images to display", min_value=1, value=5, max_value=10, step=1)
+        directory_path = st.text_input(
+            "Enter the directory path containing PNG images", ""
+        )
+        num_images = st.number_input(
+            "Number of images to display", min_value=1, value=5, max_value=10, step=1
+        )
     else:
         # Use constants
         directory_path = DEFAULT_IMAGE_DIRECTORY
         num_images = NUM_IMAGES_TO_DISPLAY
-
-
 
     # # Use constants or define directly
     # directory_path = st.text_input("Enter the directory path containing PNG images", "/path/to/your/images")
     # num_images = st.number_input("Number of images to display", min_value=1, value=10, step=1)
 
     if directory_path:
-        images = load_png_images_from_directory(directory_path=DEFAULT_IMAGE_DIRECTORY, num_images=NUM_IMAGES_TO_DISPLAY)
+        images = load_png_images_from_directory(
+            directory_path=DEFAULT_IMAGE_DIRECTORY, num_images=NUM_IMAGES_TO_DISPLAY
+        )
         if images:
-            st.image(images, caption=[f"Image {i+1}" for i in range(len(images))], use_column_width=True)
+            st.image(
+                images,
+                caption=[f"Image {i+1}" for i in range(len(images))],
+                use_column_width=True,
+            )
         else:
             st.write("No PNG images found in the specified directory.")
 
-     # Gradient divider
+    # Gradient divider
     st.markdown(
-    """
+        """
     <hr style="height: 2px; border: none; background: linear-gradient(to right, red, gray, white);"/>
     """,
-    unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
-    st.header('_PNG_ Chair Image Uploader')
+    st.header("_PNG_ Chair Image Uploader")
 
     if not os.path.exists(UPLOAD_DIRECTORY):
         os.makedirs(UPLOAD_DIRECTORY)
@@ -97,7 +107,10 @@ def main():
 
                 # Display the image using base64 encoding
                 st.markdown(f"### Processed Image Display :fire: :seat:")
-                st.markdown(f'<img src="data:image/png;base64,{base64_img}" alt="Processed image" style="display:block; margin-left:auto; margin-right:auto;"/>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<img src="data:image/png;base64,{base64_img}" alt="Processed image" style="display:block; margin-left:auto; margin-right:auto;"/>',
+                    unsafe_allow_html=True,
+                )
 
             #  # Convert the PIL Image to a base64 string
             # base64_str_one = get_image_base64(uploaded_file_one)
@@ -118,9 +131,6 @@ def main():
 
             # st.header('HTML :fire: :chair: Image Display')
 
-
-
-
     with col2:
         st.subheader("Chair two :fire: :seat: :seat:")
         uploaded_file_two = st.file_uploader("Choose file two", type=["png"])
@@ -136,7 +146,10 @@ def main():
 
                 # Display the image using base64 encoding
                 st.markdown(f"### Processed Image Display :fire: :seat: :seat:")
-                st.markdown(f'<img src="data:image/png;base64,{base64_img}" alt="Processed image" style="display:block; margin-left:auto; margin-right:auto;"/>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<img src="data:image/png;base64,{base64_img}" alt="Processed image" style="display:block; margin-left:auto; margin-right:auto;"/>',
+                    unsafe_allow_html=True,
+                )
 
             #  # Convert the PIL Image to a base64 string
             # base64_str_two = get_image_base64(uploaded_file_two)
@@ -156,8 +169,6 @@ def main():
             # )
 
             # st.header('HTML :fire: :chair: :chair: Image Display')
-
-
 
 
 if __name__ == "__main__":
