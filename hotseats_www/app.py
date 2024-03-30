@@ -129,9 +129,12 @@ def main():
     # Displaying images in one row
     cols = st.columns(len(interpolated_latent_vectors))
     for col, interpolated_encoding in zip(cols, interpolated_latent_vectors):
-        interpolated_encoding_reshaped = interpolated_encoding.reshape((1, 100))  # Reshape to (1, 100)
+        interpolated_encoding_reshaped = interpolated_encoding.reshape(
+            (1, 100)
+        )  # Reshape to (1, 100)
         reconstructed_image = decoder.predict(interpolated_encoding_reshaped)
         col.image(reconstructed_image, use_column_width=True)
+
 
 if __name__ == "__main__":
     main()
