@@ -7,58 +7,11 @@ import os
 
 import streamlit as st
 
-import image_dataset, uploaded_images
+import uploaded_images
 
 # set to a local path as needed
 DATASET_VIEWER_DEFAULT_IMAGE_DIRECTORY = None
 DATASET_VIEWER_NUM_IMAGES = 10
-
-
-def render_image_dataset_viewer(
-    num_images_to_display: int = DATASET_VIEWER_NUM_IMAGES,
-    image_directory: str = DATASET_VIEWER_DEFAULT_IMAGE_DIRECTORY,
-):
-    """
-    Add the image dataset viewer to the Streamlit app.
-    """
-    st.header("_PNG_ Image Dataset Viewer")
-
-    # Let the user choose between default values or providing their own
-    input_choice = st.radio(
-        "Choose your input method:", ("Use default settings", "Enter custom inputs")
-    )
-
-    if input_choice == "Enter custom inputs":
-        # User inputs for directory path and number of images
-        image_directory = st.text_input(
-            "Enter the directory path containing PNG images", ""
-        )
-        num_images_to_display = st.number_input(
-            "Number of images to display", min_value=1, value=5, max_value=10, step=1
-        )
-
-    if image_directory:
-        images = image_dataset.load_png_images_from_directory(
-            directory_path=image_directory, num_images=num_images_to_display
-        )
-        if images:
-            st.image(
-                images,
-                caption=[f"Image {i+1}" for i in range(len(images))],
-                use_column_width=True,
-            )
-        else:
-            st.write("No PNG images found in the specified directory.")
-    else:
-        st.error("No image directory provided, and no default set.")
-
-    # Gradient divider
-    st.markdown(
-        """
-    <hr style="height: 2px; border: none; background: linear-gradient(to right, red, gray, white);"/>
-    """,
-        unsafe_allow_html=True,
-    )
 
 
 def playback_uploaded_image(img_ref: str):
@@ -114,7 +67,8 @@ def main():
         unsafe_allow_html=True,
     )
 
-    # render_image_dataset_viewer()
+    # import dataset_viewer
+    # dataset_viewer.render_image_dataset_viewer()
 
     st.header("_PNG_ Chair Image Uploader")
 
