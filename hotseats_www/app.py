@@ -1,98 +1,60 @@
-"""
-Streamlit app for Hot Seats project. The user can upload 2 images, and we will generate
-and display a new image combining the two images.
-"""
-
 import streamlit as st
 import uploaded_images, autoencoder
 import numpy as np
 import tensorflow as tf
 
-# Set to a local path as needed
-DATASET_VIEWER_DEFAULT_IMAGE_DIRECTORY = None
-DATASET_VIEWER_NUM_IMAGES = 10
-
-def playback_uploaded_image(img_ref: str, default: str = None):
-    """img_ref is e.g. 'one' or 'A'"""
-    uploaded_file = st.file_uploader(f"Choose file {img_ref}", type=["png", "jpg", "jpeg"])
-    if uploaded_file is None:
-        if default is not None:
-            st.markdown(f"### Default image {img_ref}")
-            st.image(default)
-            return default
+def playback_uploaded_image(col, img_ref: str, default: str = None):
+    with col:
+        uploaded_file = st.file_uploader(f"Choose file {img_ref}", type=["png", "jpg", "jpeg"], key=img_ref)
+        if uploaded_file is None:
+            if default is not None:
+                st.image(default, caption=f"Default image {img_ref}")
+                return default
+            else:
+                return None
         else:
-            return None
-    else:
-        if uploaded_images.is_image(uploaded_file):
-            st.markdown(f"### Uploaded image {img_ref}")
-            st.image(uploaded_file)
-            return uploaded_file
-        else:
-            st.error("Uploaded file is unsupported.")
+            if uploaded_images.is_image(uploaded_file):
+                st.image(uploaded_file, caption=f"Uploaded image {img_ref}")
+                return uploaded_file
+            else:
+                st.error("Uploaded file is unsupported.")
+    return None
 
 def main():
-    """
-    Main function of the Streamlit app.
-    """
-    # Check Streamlit version
-    if st.__version__ != "1.29.0":
-        st.warning("File upload may not work with this version of Streamlit. Please install version 1.29.0.")
-
-    st.set_page_config(page_title="Hot Seats",
-                       page_icon=":chair:",
-                       layout="centered",
-                       initial_sidebar_state="expanded",
-                       menu_items={"About": "# This is a header. This is a hot seats app!"})
-
-    # Display the TensorFlow Keras version
-    st.markdown(f"TensorFlow version: {tf.__version__}")
-
+    st.set_page_config(page_title="Hot Seats", page_icon=":chair:")
+    st.title("_Hot_ Seats :fire: :seat:")
+    
     col1, col2 = st.columns(2)
-    with col1:
-        st.title("_Hot_ Seats :fire: :seat:")
-    with col2:
-        st.image("https://storage.googleapis.com/chairs-gan-images/Hotseats-logo.webp", use_column_width="auto")
-
-    # Gradient divider
-    st.markdown("""
-    <hr style="height: 2px; border: none; background: linear-gradient(to right, red, gray, white);"/>
-    """, unsafe_allow_html=True)
-
-    st.header("_PNG_ Chair Image Uploader")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("Chair one :fire: :seat:")
-        img_a = playback_uploaded_image("one", default="static/default_a.png")
-
-    with col2:
-        st.subheader("Chair two :fire: :seat: :seat:")
-        img_b = playback_uploaded_image("two", default="static/default_b.png")
+    img_a = playback_uploaded_image(col1, "one", default="static/default_a.png")
+    img_b = playback_uploaded_image(col2, "two", default="static/default_b.png")
 
     if img_a is None or img_b is None:
         st.warning("Please upload two chair images.")
-        return
+    else:
+        encoder = autoencoder.encoder_model()
+        decoder = autoencoder.decoder_model()
 
-    st.header("Generated Chair")
-    encoder = autoencoder.encoder_model()
-    decoder = autoencoder.decoder_model()
+        _, _, img_a_latent_vector = encoder.predict(np.array([uploaded_images.preprocess_image(img_a)]))
+        _, _, img_b_latent_vector = encoder.predict(np.array([uploaded_images.preprocess_image(img_b)]))
 
-    _, _, img_a_latent_vector = encoder.predict(np.array([uploaded_images.preprocess_image(img_a)]))
-    _, _, img_b_latent_vector = encoder.predict(np.array([uploaded_images.preprocess_image(img_b)]))
+        interpolated_latent_vectors = autoencoder.interpolate_latent_vectors(img_a_latent_vector, img_b_latent_vector, steps=10)
 
-    interpolated_latent_vectors = autoencoder.interpolate_latent_vectors(img_a_latent_vector, img_b_latent_vector, steps=10)
+        cols = st.columns(len(interpolated_latent_vectors))
+        for index, (col, interpolated_encoding) in enumerate(zip(cols, interpolated_latent_vectors), start=1):
+            with col:
+                interpolated_encoding_reshaped = interpolated_encoding.reshape((1, 100))
+                reconstructed_image = decoder.predict(interpolated_encoding_reshaped)
+                col.image(reconstructed_image, caption=f"Image {index}", use_column_width=True)
 
-    # Displaying images in one row
-    cols = st.columns(len(interpolated_latent_vectors))
-    for col, interpolated_encoding in zip(cols, interpolated_latent_vectors):
-        interpolated_encoding_reshaped = interpolated_encoding.reshape((1, 100))  # Reshape to (1, 100)
-        reconstructed_image = decoder.predict(interpolated_encoding_reshaped)
-        col.image(reconstructed_image, use_column_width=True)
-
-    # Expandable details section
-    with st.expander("See Details"):
-        st.write("Here we can have a drop down list, to choose which image to send into ecom search?")
+        with st.expander("Choose image for e-commerce search"):
+            image_options = [f"Image {i+1}" for i in range(len(interpolated_latent_vectors))]
+            selected_image = st.selectbox("Choose an image to use in the API call:", options=image_options, key="image_selection")
+            
+            # Simulate an API call based on the selected image
+            image_index = image_options.index(selected_image) + 1
+            # Simulated URL - replace with actual API call result
+            simulated_url = f"https://example.com/selected_image/{image_index}"
+            st.write(f"Simulated URL for {selected_image}: {simulated_url}")
 
 if __name__ == "__main__":
     main()
