@@ -3,12 +3,13 @@ Streamlit app for Hot Seats project. The user can upload 2 images, and we will g
 and display a new image combining the two images.
 """
 
+import os
+
 import streamlit as st
+import numpy as np
+import tensorflow as tf
 
 import uploaded_images, autoencoder
-import numpy as np
-
-import tensorflow as tf
 
 
 # set to a local path as needed
@@ -85,18 +86,21 @@ def main():
 
     st.header("_PNG_ Chair Image Uploader")
 
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    static_dir = os.path.join(current_dir, "static")
+
     col1, col2 = st.columns(2)
 
     with col1:
         st.subheader("Chair one :fire: :seat:")
         img_a = playback_uploaded_image(
-            "Choose file one", default="static/default_a.png"
+            "Choose file one", default=os.path.join(static_dir, "default_a.png")
         )
 
     with col2:
         st.subheader("Chair two :fire: :seat: :seat:")
         img_b = playback_uploaded_image(
-            "Choose file two", default="static/default_b.png"
+            "Choose file two", default=os.path.join(static_dir, "default_b.png")
         )
 
     if img_a is None or img_b is None:
