@@ -1,12 +1,8 @@
 import os
 import requests
-import tensorflow as tf
-import tensorflow
-from tensorflow import keras
-from tensorflow.keras.layers import Dense, Lambda
-from tensorflow.keras import backend as K
 
 import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras.layers import (
     Input,
     Conv2D,
@@ -48,20 +44,17 @@ def encoder_model():
     """
     Load the pre-trained encoder model.
     """
-    # url = AE_MODEL_ENCODER_URL
-    # model_path = os.path.basename(url)
-    # download_file(url, model_path)
-    # model = keras.models.load_model(
-    #     model_path,
-    #     custom_objects={
-    #         "tensorflow": tensorflow,
-    #         # "z": z_function,
-    #         # "sampling": sampling,
-    #     },
-    #     safe_mode=False,
-    # )
-    # return model
-    return encoder_build_and_restore_weights()
+    # Define input shape and encoding dimension
+    input_shape = (100, 100, 3)
+    encoding_dim = 100  # Example encoding dimension
+
+    # initialise encoder model
+    encoder = build_encoder_vae(input_shape, encoding_dim)
+
+    # restore weights from saved json
+    download_file(AE_MODEL_ENCODER_WEIGHTS_URL, "encoder_weights.h5")
+    encoder.load_weights("encoder_weights.h5")
+    return encoder
 
 
 # do not cache this because the models are not thread-safe
@@ -72,29 +65,17 @@ def decoder_model():
     """
     Load the pre-trained decoder model.
     """
-    # url = AE_MODEL_DECODER_URL
-    # model_path = os.path.basename(url)
-    # download_file(url, model_path)
-    # model = keras.models.load_model(model_path)
-    # return model
-    return decoder_build_and_restore_weights()
+    # Define input shape and encoding dimension
+    input_shape = (100, 100, 3)
+    encoding_dim = 100  # Example encoding dimension
 
+    # initialise decoder model
+    decoder = build_decoder_vae(encoding_dim, input_shape)
 
-# def sampling(args):
-#     """Reparametrization trick z-mu +sigma +epsilon"""
-#     z_mean, z_log_var = args
-#     batch = tf.shape(z_mean)[0]
-#     dim = tf.shape(z_mean)[1]
-#     epsilon = K.random_normal(shape=(batch, dim))
-#     return z_mean + K.exp(0.5 * z_log_var) * epsilon
-
-
-# def z_function(inputs):
-#     encoding_dim = 200
-#     z_mean = Dense(encoding_dim, name="z_mean")(inputs)
-#     z_log_var = Dense(encoding_dim, name="z_log_var")(inputs)
-#     z = Lambda(sampling, output_shape=(encoding_dim,), name="z")([z_mean, z_log_var])
-#     return z
+    # restore weights from saved json
+    download_file(AE_MODEL_DECODER_WEIGHTS_URL, "decoder_weights.h5")
+    decoder.load_weights("decoder_weights.h5")
+    return decoder
 
 
 def sampling(args):
@@ -142,34 +123,6 @@ def build_decoder_vae(encoded_dim, input_shape):
         x
     )  # Change padding to 'same'
     return Model(input_encoded, decoded)
-
-
-def encoder_build_and_restore_weights():
-    # Define input shape and encoding dimension
-    input_shape = (100, 100, 3)
-    encoding_dim = 100  # Example encoding dimension
-
-    # initialise encoder model
-    encoder = build_encoder_vae(input_shape, encoding_dim)
-
-    # restore weights from saved json
-    download_file(AE_MODEL_ENCODER_WEIGHTS_URL, "encoder_weights.h5")
-    encoder.load_weights("encoder_weights.h5")
-    return encoder
-
-
-def decoder_build_and_restore_weights():
-    # Define input shape and encoding dimension
-    input_shape = (100, 100, 3)
-    encoding_dim = 100  # Example encoding dimension
-
-    # initialise decoder model
-    decoder = build_decoder_vae(encoding_dim, input_shape)
-
-    # restore weights from saved json
-    download_file(AE_MODEL_DECODER_WEIGHTS_URL, "decoder_weights.h5")
-    decoder.load_weights("decoder_weights.h5")
-    return decoder
 
 
 def interpolate_latent_vectors(encoding1, encoding2, steps=10):

@@ -3,8 +3,6 @@ Streamlit app for Hot Seats project. The user can upload 2 images, and we will g
 and display a new image combining the two images.
 """
 
-import os
-
 import streamlit as st
 
 import uploaded_images, autoencoder
