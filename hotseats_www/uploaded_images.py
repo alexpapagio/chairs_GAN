@@ -8,19 +8,16 @@ from PIL import Image
 import numpy as np
 
 
-def resize_image(image_data, new_img_width=256, remove_top_pixels=0):
-    """Load and process the image"""
+def preprocess_image(image_data):
+    """Load and process the image ready for model.predict"""
     # Load the image
-    im = Image.open(image_data)
-    if remove_top_pixels > 0:
-        im = np.array(im)[remove_top_pixels:, :, :]
-        im = Image.fromarray(im)
+    img = Image.open(image_data)
+    img = img.convert("RGB")
+    img = img.resize((100, 100))
 
-    # Resize the image
-    old_img_width, old_img_height = im.size
-    new_img_height = (old_img_height * new_img_width) // old_img_width
-    im = im.resize((new_img_width, new_img_height), Image.LANCZOS)
-    return im
+    result = np.array(img)
+    result = result / 255.0
+    return result
 
 
 def is_image(file):

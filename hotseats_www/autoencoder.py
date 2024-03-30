@@ -6,14 +6,33 @@ from tensorflow import keras
 from tensorflow.keras.layers import Dense, Lambda
 from tensorflow.keras import backend as K
 
-AE_MODEL_DECODER_URL = "https://storage.googleapis.com/chairs-gan-images/autoencoder-models/hotseats-6k-autoencoder_decoder.keras"
-AE_MODEL_ENCODER_URL = "https://storage.googleapis.com/chairs-gan-images/autoencoder-models/hotseats-6k-autoencoder_encoder_vae_woK.keras"
+import tensorflow as tf
+from tensorflow.keras.layers import (
+    Input,
+    Conv2D,
+    MaxPooling2D,
+    UpSampling2D,
+    Flatten,
+    Reshape,
+    Dense,
+    ZeroPadding2D,
+    Lambda,
+)
+from tensorflow.keras.models import Model
+from tensorflow.keras.losses import binary_crossentropy
+from tensorflow.keras import backend as K
+
+AE_MODEL_DECODER_WEIGHTS_URL = "https://storage.googleapis.com/chairs-gan-images/autoencoder-models/hotseats-6k-autoencoder_decoder.h5"
+AE_MODEL_ENCODER_WEIGHTS_URL = "https://storage.googleapis.com/chairs-gan-images/autoencoder-models/hotseats-6k-autoencoder_encoder_vae_woK.h5"
 
 
 def download_file(url, output_path):
     """
     Download a file from the given URL.
     """
+
+    if os.path.exists(output_path):
+        return
 
     response = requests.get(url, timeout=10)
     response.raise_for_status()
@@ -53,11 +72,12 @@ def decoder_model():
     """
     Load the pre-trained decoder model.
     """
-    url = AE_MODEL_DECODER_URL
-    model_path = os.path.basename(url)
-    download_file(url, model_path)
-    model = keras.models.load_model(model_path)
-    return model
+    # url = AE_MODEL_DECODER_URL
+    # model_path = os.path.basename(url)
+    # download_file(url, model_path)
+    # model = keras.models.load_model(model_path)
+    # return model
+    return decoder_build_and_restore_weights()
 
 
 # def sampling(args):
@@ -75,23 +95,6 @@ def decoder_model():
 #     z_log_var = Dense(encoding_dim, name="z_log_var")(inputs)
 #     z = Lambda(sampling, output_shape=(encoding_dim,), name="z")([z_mean, z_log_var])
 #     return z
-
-
-import tensorflow as tf
-from tensorflow.keras.layers import (
-    Input,
-    Conv2D,
-    MaxPooling2D,
-    UpSampling2D,
-    Flatten,
-    Reshape,
-    Dense,
-    ZeroPadding2D,
-    Lambda,
-)
-from tensorflow.keras.models import Model
-from tensorflow.keras.losses import binary_crossentropy
-from tensorflow.keras import backend as K
 
 
 def sampling(args):
@@ -135,7 +138,7 @@ def build_decoder_vae(encoded_dim, input_shape):
     )  # Change padding to 'same'
     x = UpSampling2D((2, 2))(x)
     x = ZeroPadding2D(2)(x)
-    decoded = Conv2D(1, (3, 3), activation="sigmoid", padding="same")(
+    decoded = Conv2D(3, (3, 3), activation="sigmoid", padding="same")(
         x
     )  # Change padding to 'same'
     return Model(input_encoded, decoded)
@@ -143,25 +146,37 @@ def build_decoder_vae(encoded_dim, input_shape):
 
 def encoder_build_and_restore_weights():
     # Define input shape and encoding dimension
-    input_shape = (100, 100, 1)
-    encoding_dim = 200  # Example encoding dimension
+    input_shape = (100, 100, 3)
+    encoding_dim = 100  # Example encoding dimension
 
     # initialise encoder model
-    encoder_vae = build_encoder_vae(input_shape, encoding_dim)
-    return encoder_vae
+    encoder = build_encoder_vae(input_shape, encoding_dim)
 
     # restore weights from saved json
-    # encoder_vae.load_weights("decoder_weights.h5")
+    download_file(AE_MODEL_ENCODER_WEIGHTS_URL, "encoder_weights.h5")
+    encoder.load_weights("encoder_weights.h5")
+    return encoder
 
 
 def decoder_build_and_restore_weights():
     # Define input shape and encoding dimension
-    input_shape = (100, 100, 1)
-    encoding_dim = 200  # Example encoding dimension
+    input_shape = (100, 100, 3)
+    encoding_dim = 100  # Example encoding dimension
 
     # initialise decoder model
-    decoder_vae = build_decoder_vae(encoding_dim, input_shape)
-    return decoder_vae
+    decoder = build_decoder_vae(encoding_dim, input_shape)
 
     # restore weights from saved json
-    # decoder_vae.load_weights("decoder_weights.h5")
+    download_file(AE_MODEL_DECODER_WEIGHTS_URL, "decoder_weights.h5")
+    decoder.load_weights("decoder_weights.h5")
+    return decoder
+
+
+def interpolate_latent_vectors(encoding1, encoding2, steps=10):
+    # Interpolate between the encodings
+    interpolated_encodings = []
+    for i in range(steps):
+        alpha = i / steps
+        interpolated_encoding = alpha * encoding1 + (1 - alpha) * encoding2
+        interpolated_encodings.append(interpolated_encoding)
+    return interpolated_encodings
