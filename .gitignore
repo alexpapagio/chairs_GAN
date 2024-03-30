@@ -5,6 +5,7 @@ YOLO/runs/
 YOLO/*.pt
 
 hotseats_www/tmp/
+.streamlit/secrets.toml
 
 .DS_Store
 
