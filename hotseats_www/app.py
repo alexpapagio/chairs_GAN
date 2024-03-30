@@ -130,13 +130,14 @@ def main():
     )
     # st.write(interpolated_latent_vectors[0])
 
-    # Decode the interpolated encodings
-    for interpolated_encoding in interpolated_latent_vectors:
+    # Displaying images in one row
+    cols = st.columns(len(interpolated_latent_vectors))
+    for col, interpolated_encoding in zip(cols, interpolated_latent_vectors):
         interpolated_encoding_reshaped = interpolated_encoding.reshape(
             (1, 100)
         )  # Reshape to (1, 100)
         reconstructed_image = decoder.predict(interpolated_encoding_reshaped)
-        st.image(reconstructed_image)
+        col.image(reconstructed_image, use_column_width=True)
 
 
 if __name__ == "__main__":
