@@ -130,6 +130,6 @@ def interpolate_latent_vectors(encoding1, encoding2, steps=10):
     interpolated_encodings = []
     for i in range(steps):
         alpha = i / steps
-        interpolated_encoding = alpha * encoding1 + (1 - alpha) * encoding2
+        interpolated_encoding = alpha * encoding2 + (1 - alpha) * encoding1
         interpolated_encodings.append(interpolated_encoding)
     return interpolated_encodings
