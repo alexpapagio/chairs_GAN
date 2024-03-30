@@ -90,9 +90,5 @@ def main():
         reconstructed_image = decoder.predict(interpolated_encoding_reshaped)
         col.image(reconstructed_image, use_column_width=True)
 
-    # Expandable details section
-    with st.expander("See Details"):
-        st.write("Here we can have a drop down list, to choose which image to send into ecom search?")
-
 if __name__ == "__main__":
     main()
