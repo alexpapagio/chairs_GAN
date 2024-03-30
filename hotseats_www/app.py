@@ -3,23 +3,32 @@ Streamlit app for Hot Seats project. The user can upload 2 images, and we will g
 and display a new image combining the two images.
 """
 
-import os
-
 import streamlit as st
 
-import uploaded_images
+import uploaded_images, autoencoder
+import numpy as np
+
+import tensorflow as tf
+
 
 # set to a local path as needed
 DATASET_VIEWER_DEFAULT_IMAGE_DIRECTORY = None
 DATASET_VIEWER_NUM_IMAGES = 10
 
 
-def playback_uploaded_image(img_ref: str):
+def playback_uploaded_image(img_ref: str, default: str = None):
     """img_ref is e.g. 'one' or 'A'"""
     uploaded_file = st.file_uploader(
-        f"Choose file {img_ref}", type=["png", "jpg", "jpeg", "gif", "webp"]
+        f"Choose file {img_ref}", type=["png", "jpg", "jpeg"]
     )
-    if uploaded_file is not None:
+    if uploaded_file is None:
+        if default is not None:
+            st.markdown(f"### Default image {img_ref}")
+            st.image(default)
+            return default
+        else:
+            return None
+    else:
         # Streamlit base64 encodes the images for us, we can give it the in-memory
         # image data.
         # Let's check it's really an image first, not a renamed text file etc.
@@ -27,6 +36,7 @@ def playback_uploaded_image(img_ref: str):
         if uploaded_images.is_image(uploaded_file):
             st.markdown(f"### Uploaded image {img_ref}")
             st.image(uploaded_file)
+            return uploaded_file
         else:
             st.error("Uploaded file is unsupported.")
 
@@ -49,6 +59,9 @@ def main():
         initial_sidebar_state="expanded",
         menu_items={"About": "# This is a header. This is a hot seats app!"},
     )
+
+    # display the tensorflow keras version
+    st.markdown(f"TensorFlow version: {tf.__version__}")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -76,11 +89,50 @@ def main():
 
     with col1:
         st.subheader("Chair one :fire: :seat:")
-        playback_uploaded_image("Choose file one")
+        img_a = playback_uploaded_image(
+            "Choose file one", default="static/default_a.png"
+        )
 
     with col2:
         st.subheader("Chair two :fire: :seat: :seat:")
-        playback_uploaded_image("Choose file two")
+        img_b = playback_uploaded_image(
+            "Choose file two", default="static/default_b.png"
+        )
+
+    if img_a is None or img_b is None:
+        st.warning("Please upload two chair images.")
+        return
+
+    st.header("Generated Chair")
+    encoder = autoencoder.encoder_model()
+    decoder = autoencoder.decoder_model()
+
+    # TODO: preprocess the uploads
+    _, _, img_a_latent_vector = encoder.predict(
+        np.array([uploaded_images.preprocess_image(img_a)])
+    )
+    _, _, img_b_latent_vector = encoder.predict(
+        np.array([uploaded_images.preprocess_image(img_b)])
+    )
+
+    # st.markdown("### Latent vector A")
+    # st.write(img_a_latent_vector)
+    # st.markdown("### Latent vector B")
+    # st.write(img_b_latent_vector)
+
+    # Interpolate the latent vectors
+    interpolated_latent_vectors = autoencoder.interpolate_latent_vectors(
+        img_a_latent_vector, img_b_latent_vector, steps=10
+    )
+    # st.write(interpolated_latent_vectors[0])
+
+    # Decode the interpolated encodings
+    for interpolated_encoding in interpolated_latent_vectors:
+        interpolated_encoding_reshaped = interpolated_encoding.reshape(
+            (1, 100)
+        )  # Reshape to (1, 100)
+        reconstructed_image = decoder.predict(interpolated_encoding_reshaped)
+        st.image(reconstructed_image)
 
 
 if __name__ == "__main__":
