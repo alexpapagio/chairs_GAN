@@ -4,6 +4,8 @@ YOLO/runs/
 # YOLO model files
 YOLO/*.pt
 
+hotseats_www/tmp/
+
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
