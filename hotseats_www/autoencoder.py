@@ -22,10 +22,20 @@ AE_MODEL_DECODER_WEIGHTS_URL = "https://storage.googleapis.com/chairs-gan-images
 AE_MODEL_ENCODER_WEIGHTS_URL = "https://storage.googleapis.com/chairs-gan-images/autoencoder-models/hotseats-6k-autoencoder_encoder_vae_woK.h5"
 
 
-def download_file(url, output_path):
+def tmp_dir():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(current_dir, "tmp")
+
+
+def download_file(url, output_filename):
     """
     Download a file from the given URL.
     """
+
+    # restore weights from saved json
+    # Get the directory of the current Python source code file
+    # Construct the relative path to the encoder weights file
+    output_path = os.path.join(tmp_dir(), output_filename)
 
     if os.path.exists(output_path):
         return
@@ -53,7 +63,7 @@ def encoder_model():
 
     # restore weights from saved json
     download_file(AE_MODEL_ENCODER_WEIGHTS_URL, "encoder_weights.h5")
-    encoder.load_weights("encoder_weights.h5")
+    encoder.load_weights(os.path.join(tmp_dir(), "encoder_weights.h5"))
     return encoder
 
 
@@ -74,7 +84,7 @@ def decoder_model():
 
     # restore weights from saved json
     download_file(AE_MODEL_DECODER_WEIGHTS_URL, "decoder_weights.h5")
-    decoder.load_weights("decoder_weights.h5")
+    decoder.load_weights(os.path.join(tmp_dir(), "decoder_weights.h5"))
     return decoder
 
 
