@@ -33,4 +33,4 @@ for match in knowledge_graph["visual_matches"][0:3]:
     st.write(match["source"])
     st.write(match["link"])
 
-st.write(knowledge_graph["visual_matches"][0:3])
+#st.write(knowledge_graph["visual_matches"][0:3])
