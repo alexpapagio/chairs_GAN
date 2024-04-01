@@ -47,6 +47,7 @@ def main():
     Main function of the Streamlit app.
     """
 
+
     # Check Streamlit version
     if st.__version__ != "1.29.0":
         st.warning(
@@ -61,22 +62,35 @@ def main():
         menu_items={"About": "# This is a header. This is a hot seats app!"},
     )
 
-    # display the tensorflow keras version
-    st.markdown(f"TensorFlow version: {tf.__version__}")
 
-    col1, col2 = st.columns(2)
+
+    # display the tensorflow keras version
+    st.markdown(f"<p style='font-size:12px;'>TensorFlow version: {tf.__version__}</p>", unsafe_allow_html=True)
+
+
+    st.markdown("""
+    <style>
+    .main {
+      background: linear-gradient(to top, #c3c4c7, #2c3e50);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
-        st.title("_Hot_ Seats :fire: :seat:")
+        st.title(" ")
     with col2:
         st.image(
             "https://storage.googleapis.com/chairs-gan-images/Hotseats-logo.webp",
-            use_column_width="auto",
+            use_column_width=True,
         )
+    with col3:
+        st.title(" ")
 
     # Gradient divider
     st.markdown(
         """
-    <hr style="height: 2px; border: none; background: linear-gradient(to right, red, gray, white);"/>
+    <hr style="height: 2px; border: none; background: linear-gradient(to right,  gray, white);"/>
     """,
         unsafe_allow_html=True,
     )
@@ -85,7 +99,6 @@ def main():
     # dataset_viewer.render_image_dataset_viewer()
 
     st.header("_PNG_ Chair Image Uploader")
-
     current_dir = os.path.dirname(os.path.abspath(__file__))
     static_dir = os.path.join(current_dir, "static")
 
@@ -94,13 +107,13 @@ def main():
     with col1:
         st.subheader("Chair one :fire: :seat:")
         img_a = playback_uploaded_image(
-            "Choose file one", default=os.path.join(static_dir, "default_a.png")
+            "Choose file one"#, default=os.path.join(static_dir, "default_a.png")
         )
 
     with col2:
         st.subheader("Chair two :fire: :seat: :seat:")
         img_b = playback_uploaded_image(
-            "Choose file two", default=os.path.join(static_dir, "default_b.png")
+            "Choose file two"#, default=os.path.join(static_dir, "default_b.png")
         )
 
     if img_a is None or img_b is None:
@@ -132,13 +145,21 @@ def main():
 
     # Displaying images in one row
     cols = st.columns(len(interpolated_latent_vectors))
-    for col, interpolated_encoding in zip(cols, interpolated_latent_vectors):
+    for i, (col, interpolated_encoding) in enumerate(zip(cols, interpolated_latent_vectors)):
         interpolated_encoding_reshaped = interpolated_encoding.reshape(
             (1, 100)
         )  # Reshape to (1, 100)
         reconstructed_image = decoder.predict(interpolated_encoding_reshaped)
         col.image(reconstructed_image, use_column_width=True)
+        col.caption(str(i+1))
 
+    #create dropdown menu and show image based on selection
+    selected_image = st.selectbox("Select an image", range(1, len(interpolated_latent_vectors)+1), key="image_selection")
+    selected_image_index = selected_image - 1
+    selected_image_encoding = interpolated_latent_vectors[selected_image_index]
+    selected_image_encoding_reshaped = selected_image_encoding.reshape((1, 100))
+    selected_image_reconstructed = decoder.predict(selected_image_encoding_reshaped)
+    st.image(selected_image_reconstructed, use_column_width=True)
 
 if __name__ == "__main__":
     main()
