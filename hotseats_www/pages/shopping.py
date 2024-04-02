@@ -8,8 +8,8 @@ def shopping_page():
     # Display the two default images side by side at the top of the page
     st.header("Default Chair Images")
     default_image_paths = [
-        "/home/amin/code/A-Diafi/chairs_GAN/hotseats_www/static/3846.jpg",
-        "/home/amin/code/A-Diafi/chairs_GAN/hotseats_www/static/3920.jpg"
+        "https://github.com/alexpapagio/chairs_GAN/blob/master/hotseats_www/static/3846.jpg?raw=true",
+        "https://github.com/alexpapagio/chairs_GAN/blob/master/hotseats_www/static/3920.jpg?raw=true"
     ]
     col1, col2 = st.columns(2)
     with col1:
@@ -20,7 +20,7 @@ def shopping_page():
     # Display GAN Interpolations in one row
     st.header("GAN Interpolations")
     interpolation_paths = [
-        f"/home/amin/code/A-Diafi/chairs_GAN/hotseats_www/static/interpolations/intepolation-{i}.png"
+        f"https://github.com/alexpapagio/chairs_GAN/blob/master/hotseats_www/static/interpolations/intepolation-{i}.png?raw=true"
         for i in range(10)  # Assuming 10 interpolations
     ]
     cols = st.columns(len(interpolation_paths))  # Create as many columns as there are images
