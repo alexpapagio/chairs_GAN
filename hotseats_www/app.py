@@ -71,7 +71,7 @@ def main():
     st.markdown("""
     <style>
     .main {
-      background: linear-gradient(to top, #c3c4c7, #2c3e50);
+      background colour: white;
     }
     </style>
     """, unsafe_allow_html=True)

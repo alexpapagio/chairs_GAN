@@ -18,8 +18,8 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras import backend as K
 
-AE_MODEL_DECODER_WEIGHTS_URL = "https://storage.googleapis.com/chairs-gan-images/autoencoder-models/hotseats-6k-autoencoder_decoder.h5"
-AE_MODEL_ENCODER_WEIGHTS_URL = "https://storage.googleapis.com/chairs-gan-images/autoencoder-models/hotseats-6k-autoencoder_encoder_vae_woK.h5"
+AE_MODEL_DECODER_WEIGHTS_URL = "https://storage.googleapis.com/chairs-gan-images/autoencoder-models/hotseats-70k-autoencoder_decoder.h5"
+AE_MODEL_ENCODER_WEIGHTS_URL = "https://storage.googleapis.com/chairs-gan-images/autoencoder-models/hotseats-70k-autoencoder_encoder.h5"
 
 
 def tmp_dir():
