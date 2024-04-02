@@ -3,11 +3,18 @@ import os
 import streamlit as st
 import whereami
 
+
 def get_static_img_url(image_filename):
     """
     Return the URL of the given image in the app's static folder.
+
+    e.g. local forwarded through ngrok
+    default_a.png -> http://55cd-37-157-32-162.ngrok-free.app/app/static/default_a.png
+    or on streamlit cloud
+    default_a.png -> https://nruth-hotseats-hotseats-wwwapp-nruthstreamlit-cloud-n8hkl1.streamlit.app/app/static/default_a.png
     """
     return os.path.join(whereami.get_url(), "app/static/", image_filename)
+
 
 def shopping_page():
     st.set_page_config(page_title="Shopping", page_icon=":shopping_bags:")
@@ -26,9 +33,16 @@ def shopping_page():
 
     if "visual_matches" in knowledge_graph:
         # Prepare image options for the dropdown
-        image_options = [f"Image {i+1}: {match['title']}" for i, match in enumerate(knowledge_graph["visual_matches"][0:3])]
+        image_options = [
+            f"Image {i+1}: {match['title']}"
+            for i, match in enumerate(knowledge_graph["visual_matches"][0:3])
+        ]
         # Create a dropdown for image selection
-        selected_image_option = st.selectbox("Choose an image for more details:", options=image_options, key="image_selection_shopping")
+        selected_image_option = st.selectbox(
+            "Choose an image for more details:",
+            options=image_options,
+            key="image_selection_shopping",
+        )
 
         # Extract the index of the selected image
         selected_index = image_options.index(selected_image_option)
@@ -41,6 +55,7 @@ def shopping_page():
 
     else:
         st.error("No visual matches found. Please try again with a different image.")
+
 
 if __name__ == "__main__":
     shopping_page()
