@@ -71,7 +71,7 @@ def main():
     st.markdown("""
     <style>
     .main {
-      background: linear-gradient(to top, #c3c4c7, #2c3e50);
+      background colour: white;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -160,6 +160,8 @@ def main():
     selected_image_encoding_reshaped = selected_image_encoding.reshape((1, 100))
     selected_image_reconstructed = decoder.predict(selected_image_encoding_reshaped)
     st.image(selected_image_reconstructed, use_column_width=True)
+
+
 
 if __name__ == "__main__":
     main()
